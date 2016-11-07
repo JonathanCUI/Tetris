@@ -14,11 +14,6 @@ enum BasicShape
 	T
 }
 
-enum GameStatus
-{
-	Downing,
-}
-
 public class BattleSceneManager : MonoBehaviour {
 
 	//data members
