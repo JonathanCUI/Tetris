@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Tetris;
 using System.Collections.Generic;
-
+//using DG.Tweening.Tweening
 
 enum BasicShape
 {
@@ -208,7 +208,17 @@ public class BattleSceneManager : MonoBehaviour {
 							for (int j = 0; j < MAP_COL_COUNT; j++) 
 							{
 								_stableMatrix [i, j] = false;
-								GetSquareByIndex (i, j).SetActive (false);
+//                                Sequence sequence = DOTween.Sequence();
+//                                sequence.AppendCallback(()=>{
+//                                    GetSquareByIndex (i, j).transform.DOScale(0, 1.3f);
+//                                });
+//                                sequence.AppendInterval(1.3f);
+//                                sequence.AppendCallback(()=>{
+//                                    GetSquareByIndex (i, j).transform.localScale = Vector3.one;
+//                                });
+//                                sequence.Play();
+                                GetSquareByIndex (i, j).SetActive (false);
+
 							}
 							_fullRowIndexList.Add (i);	
 						}
