@@ -103,7 +103,6 @@ namespace Tetris
                 {0, 1, 0, 0}});
             _baseShapeList.Add(I);
 			#endregion
-
             #region J
             BaseShape J = new BaseShape();
             J.Type = BaseShapeType.J;
@@ -134,7 +133,6 @@ namespace Tetris
                 {0, 0, 0, 0}});
             _baseShapeList.Add(J);
             #endregion
-
             #region L
             BaseShape L = new BaseShape();
             L.Type = BaseShapeType.L;
@@ -176,8 +174,7 @@ namespace Tetris
                 {0, 0, 0, 0},
                 {0, 0, 0, 0}});
             _baseShapeList.Add(O);
-            #endregion
-
+            #endregion          
             #region S
             BaseShape S = new BaseShape();
             S.Type = BaseShapeType.S;
@@ -196,7 +193,6 @@ namespace Tetris
                 {0, 0, 0, 0}});
             _baseShapeList.Add(S);
             #endregion
-
             #region Z
             BaseShape Z = new BaseShape();
             Z.Type = BaseShapeType.Z;
@@ -215,7 +211,6 @@ namespace Tetris
                 {0, 0, 0, 0}});
             _baseShapeList.Add(Z);
             #endregion
-
             #region T
             BaseShape T = new BaseShape();
             T.Type = BaseShapeType.T;
@@ -271,6 +266,8 @@ namespace Tetris
         {
             return _baseShapeList[Random.Range(0, _baseShapeList.Count)];
         }
+        //最后还是用来敲代码，合适用不同的机械键盘
+
 	}
 }
 

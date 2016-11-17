@@ -24,46 +24,28 @@ public class BattleSceneManager : MonoBehaviour {
 	private const float UNIT_LENGTH = 0.75f;
 	private const float UNIT_SCALE = 0.7f;
 
-
-	//basic shape
-//	private static int[,] _I = new int[,]{
-//		{0, 0, 0, 0},
-//		{1, 1, 1, 1},
-//		{0, 0, 0, 0},
-//		{0, 0, 0, 0}};
-//	private static int[,] _I2 = new int[,]{
-//		{0, 1, 0, 0},
-//		{0, 1, 0, 0},
-//		{0, 1, 0, 0},
-//		{0, 1, 0, 0}};
-
-
-
-//	private Dictionary<BasicShape, int[,]> _basicShapeDic = new Dictionary<BasicShape, int[,]>(){
-//		{BasicShape.I, _I},
-//		{BasicShape.J, _J},
-//		{BasicShape.L, _L},
-//		{BasicShape.O, _O},
-//		{BasicShape.S, _S},
-//		{BasicShape.Z, _Z},
-//		{BasicShape.T, _T}
-//	};
+    //next ones details
+    private Vector3 _nextLeftUpPosition = new Vector3(3f, 4.37f, -2f);
+    private const float NEXT_UNIT_LENGTH = 0.53f;
+    private const float NEXT_UNIT_SCALE  = 0.5f;
+    private const float NEXT_UNIT_GAP    = 3f;
 
 	//战场信息，false代表没有被占，而true代表已经被占
 	private bool[, ] _stableMatrix = new bool[MAP_ROW_COUNT, MAP_COL_COUNT];
-//	private int _currentShapeIndex = -1;
     private BaseShape _currentShape;
     private Vector2 _currentShapeOrigin;
-	private List<Vector2> _currentDownList = new List<Vector2>();	//当前下落块的行列索引列表
-	private List<GameObject> _squareList = new List<GameObject>();
-    private List<Color> _randomColorList = new List<Color>();
+	private List<Vector2> _currentDownList = new List<Vector2>();	    //当前下落块的行列索引列表
+	private List<GameObject> _squareList   = new List<GameObject>();    //整个地图列表
+    private List<Color> _randomColorList   = new List<Color>();         //随机颜色列表
+    private List<GameObject> _nextOnesList = new List<GameObject>();    //接下来将要出现的图形索引
+
 
 	//自由下落时间累积
 	private float _fallDownTimeAccumulation;
 	private float _fallDownTimeLimit = 0.5f;
 
 	//左右移动速度
-	private float _horizonTimeLimit = 0.08f;
+	private float _horizonTimeLimit = 0.1f;
 	private float _leftTimeAccumulation;
 	private float _rightTimeAccumulation;
     private bool _needRestart;
@@ -75,6 +57,7 @@ public class BattleSceneManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
+        //构建战场矩阵Matrix
         for (int row = 0; row < MAP_ROW_COUNT; row++) 
         {
             for (int col = 0; col < MAP_COL_COUNT; col++) 
@@ -85,12 +68,29 @@ public class BattleSceneManager : MonoBehaviour {
                 _squareList.Add(go);
             }
         }
+        //构建随机颜色库
         _randomColorList.Add(Color.red);
         _randomColorList.Add(Color.green);
         _randomColorList.Add(Color.blue);
         _randomColorList.Add(Color.yellow);
         _randomColorList.Add(Color.cyan);
         _randomColorList.Add(Color.magenta);
+
+        //构建接下来将出现的图形库，这里显示4组将要出现的图形
+        for(int index = 0; index < 4; index++)
+        {
+            for(int row = 0; row < 4; row++)
+            {
+                for(int col = 0; col < 4; col++)
+                {
+                    GameObject go = Instantiate(Resources.Load("Prefabs/Unit") as GameObject);
+                    go.transform.localScale = Vector3.one * NEXT_UNIT_SCALE;
+                    go.transform.position = GetNextPositionByIndexes(index, row, col);
+                    go.GetComponent<Renderer>().material.color = _currentDownColor;
+                    _nextOnesList.Add(go);
+                }
+            }
+        }
 
         InitialMap();
         ShapeManager.Initialize();
@@ -117,6 +117,10 @@ public class BattleSceneManager : MonoBehaviour {
             _squareList[i].SetActive(false);
         }
         UIManager.Instance.GameMessageText.text = "";
+
+        //初始化4个接下来将要出现的图形，并且将他们显示出来
+
+
     }
 
 
@@ -528,6 +532,13 @@ public class BattleSceneManager : MonoBehaviour {
 	//tools
 	private Vector3 GetPositionByIndex(int pRow, int pColumn)
 	{
-		return _leftUpPosition + new Vector3 (pColumn * UNIT_LENGTH, pRow * UNIT_LENGTH * -1f);
+		return _leftUpPosition + new Vector3(pColumn * UNIT_LENGTH, pRow * UNIT_LENGTH * -1f, 0f);
 	}
+
+    private Vector3 GetNextPositionByIndexes(int pIndex, int pRow, int pColumn)
+    {
+        return _nextLeftUpPosition 
+            + new Vector3(pColumn * NEXT_UNIT_LENGTH, pRow * NEXT_UNIT_LENGTH * -1f, 0f)
+            + new Vector3(0f, pIndex * -1f * NEXT_UNIT_GAP);
+    }
 }
