@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Tetris;
 using System.Collections.Generic;
-//using DG.Tweening.Tweening
+using DG.Tweening;
 
 enum BasicShape
 {
@@ -13,6 +13,7 @@ enum BasicShape
 	Z,
 	T
 }
+
 
 public class BattleSceneManager : MonoBehaviour {
 
@@ -36,8 +37,9 @@ public class BattleSceneManager : MonoBehaviour {
     private Vector2 _currentShapeOrigin;
 	private List<Vector2> _currentDownList = new List<Vector2>();	    //当前下落块的行列索引列表
 	private List<GameObject> _squareList   = new List<GameObject>();    //整个地图列表
+    private List<GameObject> _nextOnesSquareList = new List<GameObject>(); //接下来出现图形的方块列表
     private List<Color> _randomColorList   = new List<Color>();         //随机颜色列表
-    private List<GameObject> _nextOnesList = new List<GameObject>();    //接下来将要出现的图形索引
+    private List<BaseShape> _nextOnesList = new List<BaseShape>();    //接下来将要出现的图形索引
 
 
 	//自由下落时间累积
@@ -86,14 +88,14 @@ public class BattleSceneManager : MonoBehaviour {
                     GameObject go = Instantiate(Resources.Load("Prefabs/Unit") as GameObject);
                     go.transform.localScale = Vector3.one * NEXT_UNIT_SCALE;
                     go.transform.position = GetNextPositionByIndexes(index, row, col);
-                    go.GetComponent<Renderer>().material.color = _currentDownColor;
-                    _nextOnesList.Add(go);
+                    go.GetComponent<Renderer>().material.color = Color.black;
+                    _nextOnesSquareList.Add(go);
                 }
             }
         }
 
-        InitialMap();
         ShapeManager.Initialize();
+        InitialMap();
         _currentShape = null;
 		//初始化参数
 		_fallDownTimeAccumulation = 0f;
@@ -118,9 +120,13 @@ public class BattleSceneManager : MonoBehaviour {
         }
         UIManager.Instance.GameMessageText.text = "";
 
-        //初始化4个接下来将要出现的图形，并且将他们显示出来
-
-
+        //初始化4个接下来将要出现的图形
+        for(int i = 0; i < 4; i++)
+        {
+            BaseShape bs = ShapeManager.Instance.GetNextShape();
+            bs.ResetStartShapeAndColor();
+            _nextOnesList.Add(bs);
+        }
     }
 
 
@@ -144,11 +150,34 @@ public class BattleSceneManager : MonoBehaviour {
         if (_currentShape == null) 
         {
 			_currentDownList.Clear ();
-            _currentShape = ShapeManager.Instance.GetNextShape();
-            _currentShape.ResetStartShape();
-            _currentDownColor = _randomColorList[Random.Range(0, _randomColorList.Count)];
+            _currentShape = _nextOnesList[0];
+            _currentDownColor = _currentShape.ShapeColor;
             _currentDownList = _currentShape.GetMapDownSquareListByOrigin(_currentShape.StartOffSet);
             _currentShapeOrigin = _currentShape.StartOffSet;
+
+            //产生一个新的图形来补充到接下来的图形列表当中
+            _nextOnesList.RemoveAt(0);
+            BaseShape bs = ShapeManager.Instance.GetNextShape();
+            bs.ResetStartShapeAndColor();
+            _nextOnesList.Add(bs);
+
+            //刷新接下来图形的显示界面
+            //将所有的接下来形状显示区域刷新为黑色
+            for(int i = 0; i < _nextOnesSquareList.Count; i++)
+            {
+                _nextOnesSquareList[i].GetComponent<Renderer>().material.color = Color.black;
+            }
+            //将每一个接下来图形显示出来
+            for(int index = 0; index < 4; index++)
+            {
+                List<Vector2> shapeList = _nextOnesList[index].GetMapDownSquareListByOrigin(Vector2.zero);
+                for(int i = 0; i < shapeList.Count; i++)
+                {
+                    GetNextSquareByIndex(index, (int)shapeList[i].x, (int)shapeList[i].y).GetComponent<Renderer>().material.color = _nextOnesList[index].ShapeColor;
+                }
+            }
+
+
             for(int i = 0; i < _currentDownList.Count; i++)
             {
                 if((int)_currentDownList[i].x >= 0)
@@ -528,6 +557,11 @@ public class BattleSceneManager : MonoBehaviour {
 	{
 		return _squareList[pRow * MAP_COL_COUNT + pColumn];
 	}
+
+    private GameObject GetNextSquareByIndex(int pIndex, int pRow, int pColomn)
+    {
+        return _nextOnesSquareList[pIndex * 16 + pRow * 4 + pColomn];
+    }
 
 	//tools
 	private Vector3 GetPositionByIndex(int pRow, int pColumn)

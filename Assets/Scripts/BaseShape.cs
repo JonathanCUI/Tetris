@@ -14,8 +14,17 @@ namespace Tetris
 		T
 	}
 
+
+
 	public class BaseShape
 	{
+
+//        _randomColorList.Add(Color.blue);
+//        _randomColorList.Add(Color.yellow);
+//        _randomColorList.Add(Color.cyan);
+//        _randomColorList.Add(Color.magenta);
+        private static List<Color> _colorList = new List<Color>{Color.red, Color.green, Color.blue, Color.yellow, Color.cyan, Color.magenta};
+
 		public BaseShape ()
 		{
 			_shapeMatrixList = new List<int[,]> ();
@@ -24,6 +33,7 @@ namespace Tetris
         public Vector2 StartOffSet;
         public BaseShapeType Type;
         public Vector2 OriginPoint;
+        public Color ShapeColor;
 
 		private int _currentIndex;
 		private List<int[,]> _shapeMatrixList;
@@ -37,9 +47,10 @@ namespace Tetris
             }
         }
 
-        public void ResetStartShape()
+        public void ResetStartShapeAndColor()
         {
             _currentIndex = Random.Range (0, _shapeMatrixList.Count);
+            ShapeColor = _colorList[Random.Range(0, _colorList.Count)];
         }
 
 		public void AddShapeMatrix(int[,] pMatrix)
